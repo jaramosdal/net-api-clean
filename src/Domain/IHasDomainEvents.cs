@@ -1,0 +1,9 @@
+using Domain.DomainEvents;
+
+namespace Domain;
+
+public interface IHasDomainEvents
+{
+    IReadOnlyCollection<IDomainEvent> DomainEvents { get; }
+    void ClearDomainEvents();
+}
