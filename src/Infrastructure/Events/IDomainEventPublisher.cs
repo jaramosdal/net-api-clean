@@ -1,4 +1,4 @@
-namespace Application.Abstractions.Events;
+namespace Infrastructure.Events;
 
 public interface IDomainEventPublisher
 {

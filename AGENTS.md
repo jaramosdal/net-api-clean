@@ -39,8 +39,8 @@ Mantener el archivo `CHANGELOG.md` siguiendo estrictamente las buenas prácticas
 - **Usar Principios SOLID:** Asegurar que el código modificado o añadido sigue los principios SOLID para mantener la calidad y mantenibilidad del proyecto.
 - **Usar primary constructors**
 - **Usar Record types** para objetos inmutables.
-- **Usar Minimal APIs** para exponer solo lo necesario y reducir el acoplamiento. Dentro de Endpoints, crear una carpeta por cada feature y dentro de esta, un endpoint por cada caso de uso.
-  Ejemplo:
+- **Usar Minimal APIs** para exponer solo lo necesario y reducir el acoplamiento.
+- **Ceñirse a la siguiente estructura**, teniendo siempre todo lo relativo a una misma entidad junto.
 
 ```
 /API
@@ -60,17 +60,57 @@ Mantener el archivo `CHANGELOG.md` siguiendo estrictamente las buenas prácticas
 
 /Application
     /Todos
-        Complete.cs
-        Copy.cs
-        Create.cs
-        Delete.cs
-        Get.cs
-        GetById.cs
+      /Complete
+        CompleteTodoCommand.cs
+        CompleteTodoCommandHandler.cs
+        CompleteTodoCommandValidator.cs
+      /Copy
+        CopyTodoCommand.cs
+        CopyTodoCommandHandler.cs
+        CopyTodoCommandValidator.cs
+      /Create
+        CreateTodoCommand.cs
+        CreateTodoCommandHandler.cs
+        CreateTodoCommandValidator.cs
+      /Delete
+        DeleteTodoCommand.cs
+        DeleteTodoCommandHandler.cs
+        DeleteTodoCommandValidator.cs
+      /Get
+        GetTodosQuery.cs
+        GetTodosQueryHandler.cs
+        TodosResponse.cs
+      /GetById
+        GetTodoByIdQuery.cs
+        GetTodoByIdQueryHandler.cs
+        TodoResponse.cs
     /Users
-        GetById.cs
-        Login.cs
-        Permissions.cs
-        Register.cs
+      /GetByEmail
+        GetUserByEmailQuery.cs
+        GetUserByEmailQueryHanlder.cs
+        UserResponse.cs
+      /GetById
+        GetUserByIdQuery.cs
+        GetUserByIdQueryHandler.cs
+        UserResponse.cs
+      /Login
+        LoginUserCommand.cs
+        LoginUserCommandHandler.cs
+      /Register
+        /RegisterUserCommand.cs
+        /RegisterUserCommandHandler.cs
+        /RegisterUserCommandValidator.cs
+        /UserRegisteredDomainEventHandler.cs
+
+/Domain
+    /Todos
+        Todo.cs
+        TodoCompletedDomainEvent.cs
+    /Users
+        User.cs
+        UserRegisteredDomainEvent.cs
+    /Notas
+        Note.cs
 ```
 
 - **Usar CQRS:** Separar claramente las operaciones de lectura y escritura para mejorar la escalabilidad y mantenibilidad del código.
@@ -89,7 +129,11 @@ Mantener el archivo `CHANGELOG.md` siguiendo estrictamente las buenas prácticas
 - **Seguir las convenciones de nomenclatura de C#:** Para clases, métodos, variables y otros elementos del código, asegurando una consistencia en todo el proyecto.
 - **Utilizar Entity Framework Core:** Para la gestión de datos, aprovechando sus capacidades de mapeo objeto-relacional y migraciones.
 - **Implementar autenticación y autorización**
+
 * **GlobalUsings:** Para evitar la repetición de directivas `using` en cada archivo, promoviendo un código más limpio y organizado.
+
+- **Usar Ids tipo int autoincrementales en las entidades**, salvo que se especifique lo contraio
+- **Realizar las validaciones con FluentValidation**
 
 ## 📝 Formato de Respuesta y Estilo
 

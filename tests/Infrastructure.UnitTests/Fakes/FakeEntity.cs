@@ -1,5 +1,4 @@
 using Domain;
-using Domain.DomainEvents;
 
 namespace Infrastructure.UnitTests.Fakes;
 

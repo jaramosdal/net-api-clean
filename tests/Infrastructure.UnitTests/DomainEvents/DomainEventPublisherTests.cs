@@ -1,6 +1,6 @@
 using Application.Abstractions.Events;
-using Domain.DomainEvents;
-using Infrastructure.Services;
+using Domain;
+using Infrastructure.Events;
 using Infrastructure.UnitTests.Fakes;
 using NSubstitute;
 using Soliss.NuGetRepo.Mediator;

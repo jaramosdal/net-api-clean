@@ -124,7 +124,7 @@ public class EntityDomainEventsTests
         var events = entity.DomainEvents;
 
         // Assert
-        Assert.IsAssignableFrom<IReadOnlyCollection<Domain.DomainEvents.IDomainEvent>>(events);
+        Assert.IsAssignableFrom<IReadOnlyCollection<Domain.IDomainEvent>>(events);
     }
 
     [Fact]

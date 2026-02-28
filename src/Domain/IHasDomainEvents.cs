@@ -1,5 +1,3 @@
-using Domain.DomainEvents;
-
 namespace Domain;
 
 public interface IHasDomainEvents

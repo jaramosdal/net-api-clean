@@ -1,6 +1,4 @@
-﻿using Domain.DomainEvents;
-
-namespace Domain;
+﻿namespace Domain;
 
 public abstract class Entity<TId> : IHasDomainEvents
 {
