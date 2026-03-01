@@ -2,82 +2,107 @@ using Application.Abstractions.Events;
 using Domain;
 using Infrastructure.Events;
 using Infrastructure.UnitTests.Fakes;
+using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 
 namespace Infrastructure.UnitTests.DomainEvents;
 
 public class DomainEventPublisherTests
 {
-    //private readonly IMediator _mediator;
-    //private readonly DomainEventPublisher _publisher;
+    private readonly IServiceProvider _serviceProvider;
+    private readonly IDomainEventHandler<FakeDomainEvent> _handler;
+    private readonly DomainEventPublisher _publisher;
 
-    //public DomainEventPublisherTests()
-    //{
-    //    _mediator = Substitute.For<IMediator>();
-    //    _mediator
-    //        .Publish(Arg.Any<INotification>(), Arg.Any<CancellationToken>())
-    //        .Returns(Task.CompletedTask);
+    public DomainEventPublisherTests()
+    {
+        _handler = Substitute.For<IDomainEventHandler<FakeDomainEvent>>();
+        _handler
+            .Handle(Arg.Any<FakeDomainEvent>(), Arg.Any<CancellationToken>())
+            .Returns(Task.CompletedTask);
 
-    //    _publisher = new DomainEventPublisher(_mediator);
-    //}
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddSingleton(_handler);
 
-    //[Fact]
-    //public async Task PublishAsync_ShouldWrapEventInDomainEventNotification()
-    //{
-    //    // Arrange
-    //    var domainEvent = new FakeDomainEvent();
+        _serviceProvider = serviceCollection.BuildServiceProvider();
+        _publisher = new DomainEventPublisher(_serviceProvider);
+    }
 
-    //    // Act
-    //    await _publisher.PublishAsync(domainEvent);
+    [Fact]
+    public async Task PublishAsync_ShouldInvokeRegisteredHandler()
+    {
+        // Arrange
+        var domainEvent = new FakeDomainEvent();
 
-    //    // Assert
-    //    await _mediator.Received(1).Publish(
-    //        Arg.Is<DomainEventNotification<FakeDomainEvent>>(n => n.Event == domainEvent),
-    //        Arg.Any<CancellationToken>());
-    //}
+        // Act
+        await _publisher.PublishAsync(domainEvent);
 
-    //[Fact]
-    //public async Task PublishAsync_ShouldPassCancellationTokenToMediator()
-    //{
-    //    // Arrange
-    //    using var cts = new CancellationTokenSource();
-    //    var domainEvent = new FakeDomainEvent();
+        // Assert
+        await _handler.Received(1).Handle(domainEvent, Arg.Any<CancellationToken>());
+    }
 
-    //    // Act
-    //    await _publisher.PublishAsync(domainEvent, cts.Token);
+    [Fact]
+    public async Task PublishAsync_ShouldPassCancellationTokenToHandler()
+    {
+        // Arrange
+        using var cts = new CancellationTokenSource();
+        var domainEvent = new FakeDomainEvent();
 
-    //    // Assert
-    //    await _mediator.Received(1).Publish(
-    //        Arg.Any<DomainEventNotification<FakeDomainEvent>>(),
-    //        cts.Token);
-    //}
+        // Act
+        await _publisher.PublishAsync(domainEvent, cts.Token);
 
-    //[Fact]
-    //public async Task PublishAsync_WhenMediatorThrows_ShouldPropagateException()
-    //{
-    //    // Arrange
-    //    var domainEvent = new FakeDomainEvent();
-    //    _mediator
-    //        .Publish(Arg.Any<INotification>(), Arg.Any<CancellationToken>())
-    //        .Returns(Task.FromException(new InvalidOperationException("Mediator failed")));
+        // Assert
+        await _handler.Received(1).Handle(domainEvent, cts.Token);
+    }
 
-    //    // Act & Assert
-    //    await Assert.ThrowsAsync<InvalidOperationException>(
-    //        () => _publisher.PublishAsync(domainEvent));
-    //}
+    [Fact]
+    public async Task PublishAsync_WhenHandlerThrows_ShouldPropagateException()
+    {
+        // Arrange
+        var domainEvent = new FakeDomainEvent();
+        _handler
+            .Handle(Arg.Any<FakeDomainEvent>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromException(new InvalidOperationException("Handler failed")));
 
-    //[Fact]
-    //public async Task PublishAsync_ShouldPublishNotificationOfCorrectGenericType()
-    //{
-    //    // Arrange
-    //    var domainEvent = new FakeDomainEvent();
+        // Act & Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            () => _publisher.PublishAsync(domainEvent));
+    }
 
-    //    // Act
-    //    await _publisher.PublishAsync(domainEvent);
+    [Fact]
+    public async Task PublishAsync_ShouldInvokeAllRegisteredHandlers()
+    {
+        // Arrange
+        var secondHandler = Substitute.For<IDomainEventHandler<FakeDomainEvent>>();
+        secondHandler
+            .Handle(Arg.Any<FakeDomainEvent>(), Arg.Any<CancellationToken>())
+            .Returns(Task.CompletedTask);
 
-    //    // Assert — Verify the notification is specifically DomainEventNotification<FakeDomainEvent>
-    //    await _mediator.Received(1).Publish(
-    //        Arg.Is<INotification>(n => n is DomainEventNotification<FakeDomainEvent>),
-    //        Arg.Any<CancellationToken>());
-    //}
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddSingleton(_handler);
+        serviceCollection.AddSingleton(secondHandler);
+
+        var provider = serviceCollection.BuildServiceProvider();
+        var publisher = new DomainEventPublisher(provider);
+
+        var domainEvent = new FakeDomainEvent();
+
+        // Act
+        await publisher.PublishAsync(domainEvent);
+
+        // Assert
+        await _handler.Received(1).Handle(domainEvent, Arg.Any<CancellationToken>());
+        await secondHandler.Received(1).Handle(domainEvent, Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task PublishAsync_WhenNoHandlersRegistered_ShouldNotThrow()
+    {
+        // Arrange
+        var emptyProvider = new ServiceCollection().BuildServiceProvider();
+        var publisher = new DomainEventPublisher(emptyProvider);
+        var domainEvent = new FakeDomainEvent();
+
+        // Act & Assert — should complete without exception
+        await publisher.PublishAsync(domainEvent);
+    }
 }

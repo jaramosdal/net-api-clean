@@ -2,4 +2,4 @@ using Domain;
 
 namespace Infrastructure.UnitTests.Fakes;
 
-internal sealed class FakeDomainEvent : IDomainEvent;
+public sealed class FakeDomainEvent : IDomainEvent;
