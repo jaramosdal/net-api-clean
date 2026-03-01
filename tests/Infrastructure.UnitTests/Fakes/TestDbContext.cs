@@ -1,5 +1,5 @@
-using Application.Abstractions.Events;
 using Infrastructure.Database;
+using Infrastructure.Events;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.UnitTests.Fakes;

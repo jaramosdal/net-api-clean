@@ -3,7 +3,6 @@ using Application.Abstractions.Messaging;
 using Application.Behaviors;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
-using Soliss.NuGetRepo.Mediator;
 
 namespace Application;
 
@@ -27,10 +26,11 @@ public static class DependencyInjection
             .AsImplementedInterfaces()
             .WithScopedLifetime());
 
-        services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly, includeInternalTypes: true);
+        services.Decorate(typeof(ICommandHandler<,>), typeof(ValidationDecorator.CommandHandler<,>));
+        services.Decorate(typeof(ICommandHandler<>), typeof(ValidationDecorator.CommandBaseHandler<>));
 
-        // Registrar behavior de validación para comandos y queries (open-generic)
-        services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+        services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly, includeInternalTypes: true);
+        
         return services;
     }
 }

@@ -1,5 +1,5 @@
 ﻿using Application.Abstractions.Data;
-using Application.Abstractions.Events;
+using Infrastructure.Events;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Database;

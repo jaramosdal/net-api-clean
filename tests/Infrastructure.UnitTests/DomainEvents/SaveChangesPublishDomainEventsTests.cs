@@ -1,6 +1,7 @@
 using Application.Abstractions.Events;
 using Domain;
 using Infrastructure.Database;
+using Infrastructure.Events;
 using Infrastructure.UnitTests.Fakes;
 using Microsoft.EntityFrameworkCore;
 using NSubstitute;
